@@ -8,9 +8,9 @@ import scipy as sc
 import pprint as pp
 
 
-connection=sq.connect("C:/Users/user/Downloads/trade_db.db")
-cursor=connection.cursor()   
-Tr=[]
+connection=sq.connect("C:/Users/user/Downloads/trade_db.db") #création de la connection
+cursor=connection.cursor()  #création du curseur 
+Tr=[] #Création du dataframe contenant les trades 
 
 
 cursor.execute('SELECT * FROM Bitfinex_candle_EOSBTC_12h ORDER BY date ASC')
@@ -291,19 +291,19 @@ Tr.append(XRPBTC7D)
 
 connection.close()
 
-Tr[0]['close'].plot(figsize=(11,8))
+Tr[0]['close'].plot(figsize=(11,8)) #test pour afficher l'évolution du prix pour EOSBTC 12h avec une certaine taille
 Tr[1]['close'].plot(figsize=(11,7))
 
-print(Tr[0].head())
+print(Tr[0].head()) #affiche les premières lignes du dataset EOSBTC12H
 print(Tr[1].head())
    
 for j in range ( len(Tr[0])):
    Tr[0].loc[j,'date']= datetime.fromtimestamp(Tr[0].loc[j,'date'])
    print(Tr[0].loc[j,'date'])
    
-def transfo_timestamp(i):
+def transfo_timestamp_datetime(i): #transforme les dates en timestamps
     for j in range ( len(Tr[i])):
-        Tr[0].loc[j,'date']= datetime.fromtimestamp(Tr[i].loc[j,'date'])
+        Tr[i].loc[j,'date']= datetime.fromtimestamp(Tr[i].loc[j,'date'])
         print(Tr[i].loc[j,'date'])
    
 Tr[0].index_col='date'
@@ -314,13 +314,24 @@ EOSBTC12H.loc[:len(Tr[0]),['date','close']].rolling(window=20).mean().plot()
 T1=EOSBTC12H.loc[:len(Tr[0]),['date','close']].rolling(window=2).mean()
 print(EOSBTC12H.loc[:len(Tr[0]),['date','close']].rolling(window=2).mean()  )
 
-def calcul_sma(Trades,indice_dt,taille_fenêtre):
+def calcul_sma(Trades,indice_dt,taille_fenêtre): #sma pour un certain dataframe
     sma=Trades[indice_dt].loc[:len(Trades[indice_dt]),['date','close']].rolling(window=taille_fenêtre).mean()
     return sma
 
-def calcul_ema(Trades,indice_dt,taille_fenêtre):
+def calcul_ema(Trades,indice_dt,taille_fenêtre): #ema pour un certai dataframe
     ema=Trades[indice_dt].loc[:len(Trades[indice_dt]),['date','close']].ewm(window=taille_fenêtre).mean()
     return ema
+
+def RSIfun(price, n=14):
+    delta = price['Close'].diff()
+    dUp, dDown = delta.copy(), delta.copy()
+    dUp[dUp < 0] = 0
+    dDown[dDown > 0] = 0
+    RolUp = pd.rolling_mean(dUp, n)
+    RolDown = pd.rolling_mean(dDown, n).abs()
+    RS = RolUp / RolDown
+    rsi= 100.0 - (100.0 / (1.0 + RS))
+    return rsi
 
 def exportation_dt_indicateur(Trades,indice_dt,nom_indic, indic):
     for i in range(len(Trades[indice_dt])):
@@ -334,7 +345,7 @@ def exportation_database(Trades,indice_dt,table,nom_indic):
     dataframe=Trades[indice_dt]
     for i in range(len(Trades[indice_dt])):
         data={"nomtable":table, "nom_indic":nom_indic, "val":dataframe.loc[i,nom_indic],"i":i+1}
-        query="UPDATE nomtable SET nomindic=:val WHERE Id=:i"
+        query="UPDATE %(nomtable)s SET %(nom_indic)s=:val WHERE Id=:i"
         cursor.execute(query,data)
     connection.commit()
     connection.close()
@@ -342,15 +353,16 @@ def exportation_database(Trades,indice_dt,table,nom_indic):
 def test_exp(Trades,indice_dt,table,nom_indic):
     dataframe=Trades[indice_dt]
     data={"nomtable":table, "nom_indic":nom_indic, "val":dataframe.loc[1,nom_indic]}
-    query="UPDATE nomtable SET nomindic=:val WHERE Id=:i"
+    query=("UPDATE %s SET %s=:val WHERE Id=:i",table,nom_indic)
     print(table)
     print(data)
     print((query,data))
     
 
 def main():
-    sma_30=calcul_sma(Tr,0,30)
-    exportation_dt_indicateur(Tr,0,'sma_30',sma_30)
+    transfo_timestamp_datetime(6)
+    sma_30=calcul_sma(Tr,6,30)
+    exportation_dt_indicateur(Tr,6,'sma_30',sma_30)
     connection=sq.connect("C:/Users/user/Downloads/trade_db.db")
     cursor=connection.cursor() 
     
@@ -367,6 +379,7 @@ def main():
     
     
     exportation_database(Tr,0,'Bitfinex_candle_EOSBTC_12h',"sma_30")
+    
     test_exp(Tr,0,'Bitfinex_candle_EOSBTC_12h',"sma_30")
 
     print(Tr[0].loc[345,'sma_30'])
