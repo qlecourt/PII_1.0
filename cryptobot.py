@@ -361,7 +361,7 @@ for j in range ( len(Tr[0])):
 def transfo_timestamp_datetime(i): #transforme les dates en timestamps
     for j in range ( len(Tr[i])):
         Tr[i].loc[j,'date']= datetime.fromtimestamp(Tr[i].loc[j,'date'])
-        print(Tr[i].loc[j,'date'])
+    
    
 Tr[33].index_col='date'
 Tr[33].parse_dates=True
@@ -527,8 +527,7 @@ def momentum12H(RW):
             moment_tab[0][3]=100*LTCBTC12Hb.loc[j,'close']/LTCBTC12Hb.loc[j-RW,'close']-100
             moment_tab[1][3]='LTCBTC12H'
             moment_tab[0][4]=100*XRPBTC12Hb.loc[j,'close']/XRPBTC12Hb.loc[j-RW,'close']-100
-            moment_tab[1][4]='XRPBTC12H'          
-            
+            moment_tab[1][4]='XRPBTC12H'                   
             Sort_tab.append(BubbleSort(moment_tab))
             pd.DataFrame(Sort_tab)
      print(Sort_tab)
@@ -683,29 +682,8 @@ def main():
     exportation_database(Tr,0,'Bitfinex_candle_EOSBTC_12h',"sma_30")
     
     test_exp(Tr,0,'Bitfinex_candle_EOSBTC_12h',"sma_30")
-
-    print(Tr[0].loc[345,'sma_30'])
-    Tr[0].head(1)
-    a = [[1, 4, 2,3], ["a", "d"," b","c"]]
-    BubbleSort(a)
    
-    print(Tr[11].name)
-    print(ETHBTC12H.name)
-  
-    tabtest=momentum(Tr,0,10)
-    taba=[]
-    for i in range(2):
-        taba.append([0] * 5)
-    taba[1][3]='EOSBTC'
-    print (taba)
-    a=testmomentum()
-    print(a)
-    print(100*Tr[0].loc[2,'close']/Tr[0].loc[2-2,'close']-100)
-    print(EOSBTC12H.loc[0,'date'])
-    print(Tr[11].loc[0,'date'])    
-    print(Tr[22].loc[0,'date'])    
-    print(Tr[33].loc[0,'date'])    
-    print(Tr[44].loc[0,'date'])    
+    
     Sort_tab=[]
     for j in range(2,len(EOSBTC12H)):   
             print(EOSETH12H.loc[j,'date'])
@@ -728,30 +706,9 @@ def main():
             pd.DataFrame(Sort_tab)
     print(Sort_tab)
     
-    Sort_tab=[]
-    EOSBTC12Hb=[]
-    for j in range(2,len(EOSBTC12H)):  
-        EOSBTC12Hb.append(EOSBTC12H[j])
+    M=momentum12H(4)
+    
    
-                                print(EOSETH12H.loc[j,'date'])
-                                print(j)
-                                moment_tab=[]
-                                for s in range(0,2):
-                                    moment_tab.append([0] * 5)
-                                moment_tab[0][0]=100*EOSBTC12H.loc[j,'close']/EOSBTC12H.loc[j-2,'close']-100
-                                moment_tab[1][0]='EOSBTCH12H'
-                                moment_tab[0][1]=100*EOSETH12H.loc[k,'close']/EOSETH12H.loc[k-2,'close']-100
-                                moment_tab[1][1]='EOSETH12H'
-                                moment_tab[0][2]=100*ETHBTC12H.loc[l,'close']/ETHBTC12H.loc[l-2,'close']-100
-                                moment_tab[1][2]='ETHBTC12H'
-                                moment_tab[0][3]=100*LTCBTC12H.loc[m,'close']/LTCBTC12H.loc[m-2,'close']-100
-                                moment_tab[1][3]='LTCBTC12H'
-                                moment_tab[0][4]=100*XRPBTC12H.loc[n,'close']/XRPBTC12H.loc[n-2,'close']-100
-                                moment_tab[1][4]='XRPBTC12H'          
-                                pd.DataFrame(moment_tab)
-                                Sort_tab.append(BubbleSort(moment_tab))
-                                pd.DataFrame(Sort_tab)
-    print(Sort_tab)
     
 
 
